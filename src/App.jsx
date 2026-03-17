@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink, useLocation } from 'react-router-dom';
-import { LayoutGrid, CheckSquare, Calendar, Settings, Map as MapIcon } from 'lucide-react';
+import { LayoutGrid, CheckSquare, Calendar, Settings, Map as MapIcon, Package, User } from 'lucide-react';
 import './index.css';
 
 import Dashboard from './pages/Dashboard';
@@ -8,33 +8,35 @@ import HiveDetail from './pages/HiveDetail';
 import NewInspection from './pages/NewInspection';
 import StatsScreen from './pages/StatsScreen';
 import MapScreen from './pages/MapScreen';
+import MaterialScreen from './pages/MaterialScreen';
+import TasksScreen from './pages/TasksScreen';
+import BreedingScreen from './pages/BreedingScreen';
 
 // Placeholder Screens
-const TasksScreen = () => <div style={{padding: '16px'}}><h1>Aufgaben</h1></div>;
 const CalendarScreen = () => <div style={{padding: '16px'}}><h1>Kalender</h1></div>;
-const SettingsScreen = () => <div style={{padding: '16px'}}><h1>Einstellungen</h1></div>;
+const ProfileScreen = () => <div style={{padding: '16px'}}><h1>Profil</h1></div>;
 
 const BottomNav = () => (
   <nav className="bottom-nav">
     <NavLink to="/" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
       <LayoutGrid size={24} strokeWidth={1.5} />
-      <span>Übersicht</span>
+      <span>Völker</span>
     </NavLink>
     <NavLink to="/tasks" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
       <CheckSquare size={24} strokeWidth={1.5} />
       <span>Aufgaben</span>
     </NavLink>
-    <NavLink to="/map" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
-      <MapIcon size={24} strokeWidth={1.5} />
-      <span>Karte</span>
+    <NavLink to="/material" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
+      <Package size={24} strokeWidth={1.5} />
+      <span>Material</span>
     </NavLink>
     <NavLink to="/calendar" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
       <Calendar size={24} strokeWidth={1.5} />
       <span>Kalender</span>
     </NavLink>
-    <NavLink to="/settings" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
-      <Settings size={24} strokeWidth={1.5} />
-      <span>Einstellungen</span>
+    <NavLink to="/profile" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
+      <User size={24} strokeWidth={1.5} />
+      <span>Profil</span>
     </NavLink>
   </nav>
 );
@@ -47,11 +49,13 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/hive/:id" element={<HiveDetail />} />
           <Route path="/hive/:id/stats" element={<StatsScreen />} />
+          <Route path="/hive/:id/breeding" element={<BreedingScreen />} />
           <Route path="/inspection/new/:id" element={<NewInspection />} />
           <Route path="/map" element={<MapScreen />} />
           <Route path="/tasks" element={<TasksScreen />} />
+          <Route path="/material" element={<MaterialScreen />} />
           <Route path="/calendar" element={<CalendarScreen />} />
-          <Route path="/settings" element={<SettingsScreen />} />
+          <Route path="/profile" element={<ProfileScreen />} />
         </Routes>
         <BottomNavWrapper />
       </div>
@@ -61,8 +65,15 @@ function App() {
 
 function BottomNavWrapper() {
   const location = useLocation();
-  // Hide BottomNav on forms or specific details that have their own footer CTA
-  if (location.pathname.includes('/inspection/new') || location.pathname.includes('/stats')) {
+  // Keep navigation active ONLY on main tabs, hide it on detail screens like Forms, Stats, Breeding, Maps
+  const hideNav = location.pathname.includes('/inspection/new') || 
+                  location.pathname.includes('/stats') ||
+                  location.pathname.includes('/breeding') ||
+                  location.pathname.includes('/map') ||
+                  (location.pathname.includes('/hive/') && !location.pathname.includes('/stats') && !location.pathname.includes('/breeding') && location.pathname !== '/');
+
+  // Modified bottom nav list according to material image bottom nav (Völker, Kalender, Material, Profil) -> Added Aufgaben too
+  if (hideNav) {
     return null;
   }
   return <BottomNav />;
