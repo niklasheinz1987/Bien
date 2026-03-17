@@ -18,26 +18,33 @@ const CalendarScreen = () => <div style={{padding: '16px'}}><h1>Kalender</h1></d
 const ProfileScreen = () => <div style={{padding: '16px'}}><h1>Profil</h1></div>;
 
 const BottomNav = () => (
-  <nav className="bottom-nav">
-    <NavLink to="/" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
+  <nav className="bottom-nav" style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', backgroundColor: '#1a1d1a', borderTop: '1px solid #2a2d2a', padding: '12px 0 16px 0' }}>
+    <NavLink to="/" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', color: 'var(--color-text-secondary)', flex: 1, textDecoration: 'none' }}>
       <LayoutGrid size={24} strokeWidth={1.5} />
-      <span>Völker</span>
+      <span style={{ fontSize: '10px' }}>Völker</span>
     </NavLink>
-    <NavLink to="/tasks" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
+    <NavLink to="/tasks" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', color: 'var(--color-text-secondary)', flex: 1, textDecoration: 'none' }}>
       <CheckSquare size={24} strokeWidth={1.5} />
-      <span>Aufgaben</span>
+      <span style={{ fontSize: '10px' }}>Aufgaben</span>
     </NavLink>
-    <NavLink to="/material" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
-      <Package size={24} strokeWidth={1.5} />
-      <span>Material</span>
-    </NavLink>
-    <NavLink to="/calendar" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
+    
+    <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+      <button style={{ 
+        width: '56px', height: '56px', borderRadius: '50%', backgroundColor: 'var(--color-primary-green)', 
+        border: '4px solid #1a1d1a', display: 'flex', alignItems: 'center', justifyContent: 'center', 
+        transform: 'translateY(-16px)', color: '#000', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0, 204, 34, 0.3)' 
+      }} onClick={() => alert("Hier könnten Sie ein neues Volk oder eine Durchsicht anlegen.")}>
+        <span style={{ fontSize: '32px', fontWeight: '400', marginTop: '-4px' }}>+</span>
+      </button>
+    </div>
+
+    <NavLink to="/calendar" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', color: 'var(--color-text-secondary)', flex: 1, textDecoration: 'none' }}>
       <Calendar size={24} strokeWidth={1.5} />
-      <span>Kalender</span>
+      <span style={{ fontSize: '10px' }}>Kalender</span>
     </NavLink>
-    <NavLink to="/profile" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
-      <User size={24} strokeWidth={1.5} />
-      <span>Profil</span>
+    <NavLink to="/profile" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', color: 'var(--color-text-secondary)', flex: 1, textDecoration: 'none' }}>
+      <Settings size={24} strokeWidth={1.5} />
+      <span style={{ fontSize: '10px' }}>Einstellungen</span>
     </NavLink>
   </nav>
 );
@@ -72,8 +79,7 @@ function BottomNavWrapper() {
                   location.pathname.includes('/stats') ||
                   location.pathname.includes('/breeding') ||
                   location.pathname.includes('/edit') ||
-                  location.pathname.includes('/map') ||
-                  (location.pathname.includes('/hive/') && !location.pathname.includes('/stats') && !location.pathname.includes('/breeding') && location.pathname !== '/');
+                  location.pathname.includes('/map');
 
   // Modified bottom nav list according to material image bottom nav (Völker, Kalender, Material, Profil) -> Added Aufgaben too
   if (hideNav) {

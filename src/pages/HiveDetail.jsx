@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Edit2, Crown, BarChart2, BugOff, Hexagon, ChevronRight, Check } from 'lucide-react';
+import { ArrowLeft, Edit2, Crown, BarChart2, BugOff, Hexagon, ChevronRight, Check, AlertTriangle } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { subscribeToHive, subscribeToInspections, subscribeToTreatments } from '../services/db';
 
@@ -88,12 +88,12 @@ export default function HiveDetail() {
           <span style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>Königin</span>
         </div>
         <div>
-          <h3 style={{ fontSize: '24px', margin: '0' }}>Blau 2024</h3>
-          <p style={{ color: 'var(--color-text-secondary)', fontSize: '12px', margin: '4px 0 12px 0' }}>Gez. 15.05.2024</p>
+          <h3 style={{ fontSize: '24px', margin: '0' }}>{hive.queenName || 'Königin Name'}</h3>
+          <p style={{ color: 'var(--color-text-secondary)', fontSize: '12px', margin: '4px 0 12px 0' }}>Gez. {hive.queenDate || 'Unbekannt'}</p>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
-          <span style={{ border: '1px solid #1e3a5f', color: '#66a3ff', padding: '4px 10px', borderRadius: '12px', fontSize: '12px' }}>Markiert</span>
-          <span style={{ border: '1px solid #1a4a1c', color: 'var(--color-primary-green)', padding: '4px 10px', borderRadius: '12px', fontSize: '12px' }}>Standbegattet</span>
+          <span style={{ border: '1px solid #1e3a5f', color: '#66a3ff', padding: '4px 10px', borderRadius: '12px', fontSize: '12px' }}>{hive.queenMarked ? 'Markiert' : 'Unmarkiert'}</span>
+          <span style={{ border: '1px solid #1a4a1c', color: 'var(--color-primary-green)', padding: '4px 10px', borderRadius: '12px', fontSize: '12px' }}>{hive.queenMating || 'Standbegattet'}</span>
         </div>
       </div>
 
@@ -107,14 +107,14 @@ export default function HiveDetail() {
           <span style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>Aktuelle Stärke</span>
         </div>
         <div>
-          <h3 style={{ fontSize: '24px', margin: '0' }}>{hive.strength || 'Normal'}</h3>
-          <p style={{ color: 'var(--color-text-secondary)', fontSize: '12px', margin: '4px 0 16px 0' }}>Basiert auf {inspections.length} Inspektionen</p>
+          <h3 style={{ fontSize: '24px', margin: '0' }}>{hive.frames || 8} Gassen</h3>
+          <p style={{ color: 'var(--color-text-secondary)', fontSize: '12px', margin: '4px 0 16px 0' }}>{hive.frameType || 'Zander Maß'}</p>
         </div>
         <div>
           <div style={{ display: 'flex', gap: '4px', height: '8px', borderRadius: '4px', overflow: 'hidden', backgroundColor: 'var(--color-border)' }}>
-            <div style={{ width: hive.strength === 'Stark' ? '80%' : hive.strength === 'Schwach' ? '30%' : '50%', backgroundColor: hive.strength === 'Schwach' ? 'var(--status-critical)' : 'var(--color-primary-green)' }}></div>
+            <div style={{ width: `${Math.min(100, (hive.frames || 8) * 10)}%`, backgroundColor: 'var(--color-primary-green)' }}></div>
           </div>
-          <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', textAlign: 'right', marginTop: '6px' }}>Letzte Durchsicht: {inspections.length > 0 ? new Date(inspections[0].date?.seconds * 1000).toLocaleDateString() : 'Nie'}</div>
+          <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', textAlign: 'right', marginTop: '6px' }}>Trend: {hive.trend || 'Steigend'}</div>
         </div>
       </div>
 
@@ -128,11 +128,11 @@ export default function HiveDetail() {
           <span style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>Letzte Varroa</span>
         </div>
         <div>
-          <h3 style={{ fontSize: '24px', margin: '0' }}>12.08.2023</h3>
-          <p style={{ color: 'var(--color-text-secondary)', fontSize: '12px', margin: '4px 0 16px 0' }}>Ameisensäure 60%</p>
+          <h3 style={{ fontSize: '24px', margin: '0' }}>{hive.lastVarroaDate || 'Nie'}</h3>
+          <p style={{ color: 'var(--color-text-secondary)', fontSize: '12px', margin: '4px 0 16px 0' }}>{hive.lastVarroaTreatment || '-'}</p>
         </div>
         <div style={{ color: '#ff4d4d', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <AlertTriangle size={14} /> Behandlung fällig in 2 Wochen
+          <AlertTriangle size={14} /> {hive.varroaAlert || 'Behandlung prüfen'}
         </div>
       </div>
 
@@ -149,7 +149,7 @@ export default function HiveDetail() {
         <div style={{ display: 'flex', gap: '24px' }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>Futtervorrat</div>
-            <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>12.5 kg</div>
+            <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>{hive.feedKg || 0} kg</div>
             <div style={{ display: 'flex', gap: '4px', height: '6px', borderRadius: '3px', overflow: 'hidden', backgroundColor: 'var(--color-border)' }}>
               <div style={{ width: '40%', backgroundColor: '#ffaa00' }}></div>
               <div style={{ width: '20%', backgroundColor: '#ffaa00' }}></div>
@@ -157,11 +157,11 @@ export default function HiveDetail() {
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>Honigräume</div>
-            <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>2 Aufgesetzt</div>
+            <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>{hive.supers || 0} Aufgesetzt</div>
             <div style={{ display: 'flex', gap: '4px', height: '6px' }}>
-              <div style={{ flex: 1, backgroundColor: '#ffaa00', borderRadius: '3px' }}></div>
-              <div style={{ flex: 1, backgroundColor: '#ffaa00', borderRadius: '3px' }}></div>
-              <div style={{ flex: 1, backgroundColor: 'var(--color-border)', borderRadius: '3px' }}></div>
+              {[...Array(3)].map((_, i) => (
+                <div key={i} style={{ flex: 1, backgroundColor: i < (hive.supers || 0) ? '#ffaa00' : 'var(--color-border)', borderRadius: '3px' }}></div>
+              ))}
             </div>
           </div>
         </div>
