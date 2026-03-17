@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, NavLink, useLocation } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, NavLink, useLocation } from 'react-router-dom';
 import { LayoutGrid, CheckSquare, Calendar, Settings, Map as MapIcon, Package, User } from 'lucide-react';
 import './index.css';
 
