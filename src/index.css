@@ -1,0 +1,131 @@
+:root {
+  /* Dark Green Theme based on screenshot */
+  --color-bg-dark: #0f1c12;
+  --color-bg-card: #1a2a1c;
+  --color-bg-card-hover: #223525;
+  --color-primary-green: #00ff22;
+  --color-primary-green-hover: #00e01e;
+  --color-text-main: #ffffff;
+  --color-text-secondary: #a3b8a6;
+  --color-text-muted: #6e8471;
+  --color-border: #293f2c;
+  
+  /* Status Colors */
+  --status-critical: #ff4d4d;
+  --status-mittel: #ffaa00;
+  --status-stark: #00cc22;
+  
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+  
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Minimalist Button Styles */
+.btn-primary {
+  background-color: var(--color-primary-green);
+  color: #000000;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-green-hover);
+}
+
+.card {
+  background-color: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  margin-bottom: 16px;
+}
+
+.fab {
+  position: fixed;
+  bottom: 80px;
+  right: 24px;
+  background-color: var(--color-primary-green);
+  color: #000;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,255,34,0.3);
+  cursor: pointer;
+  border: none;
+  z-index: 50;
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--color-bg-dark);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 0 20px 0;
+  z-index: 40;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.nav-item.active {
+  color: var(--color-primary-green);
+}
+
+.app-header {
+  padding: 24px 16px 16px 16px;
+  position: sticky;
+  top: 0;
+  background-color: var(--color-bg-dark);
+  z-index: 30;
+}
+
+.search-bar {
+  background-color: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  padding: 12px 20px;
+  color: var(--color-text-main);
+  width: 100%;
+  outline: none;
+  font-size: 16px;
+}
