@@ -33,7 +33,7 @@ export default function HiveDetail() {
           <ArrowLeft size={24} />
         </button>
         <h1 style={{ fontSize: '20px', fontWeight: 'bold', margin: '0' }}>Volk {hive.displayId || id.substring(0,4)}</h1>
-        <button style={{ background: 'none', border: 'none', color: 'var(--color-primary-green)', cursor: 'pointer', padding: '8px' }}>
+        <button onClick={() => navigate(`/hive/${id}/edit`)} style={{ background: 'none', border: 'none', color: 'var(--color-primary-green)', cursor: 'pointer', padding: '8px' }}>
           <Edit2 size={24} />
         </button>
       </div>

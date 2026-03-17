@@ -37,6 +37,11 @@ export const addHive = async (hiveData) => {
   });
 };
 
+export const updateHive = async (id, updateData) => {
+  const docRef = doc(db, 'hives', id);
+  return await setDoc(docRef, updateData, { merge: true });
+};
+
 // Evaluations (Zuchtbewertung)
 export const subscribeToEvaluations = (hiveId, callback) => {
   const q = query(collection(db, `hives/${hiveId}/evaluations`), orderBy('date', 'desc'));

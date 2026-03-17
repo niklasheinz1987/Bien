@@ -11,6 +11,7 @@ import MapScreen from './pages/MapScreen';
 import MaterialScreen from './pages/MaterialScreen';
 import TasksScreen from './pages/TasksScreen';
 import BreedingScreen from './pages/BreedingScreen';
+import EditHiveScreen from './pages/EditHiveScreen';
 
 // Placeholder Screens
 const CalendarScreen = () => <div style={{padding: '16px'}}><h1>Kalender</h1></div>;
@@ -48,6 +49,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/hive/:id" element={<HiveDetail />} />
+          <Route path="/hive/:id/edit" element={<EditHiveScreen />} />
           <Route path="/hive/:id/stats" element={<StatsScreen />} />
           <Route path="/hive/:id/breeding" element={<BreedingScreen />} />
           <Route path="/inspection/new/:id" element={<NewInspection />} />
@@ -69,6 +71,7 @@ function BottomNavWrapper() {
   const hideNav = location.pathname.includes('/inspection/new') || 
                   location.pathname.includes('/stats') ||
                   location.pathname.includes('/breeding') ||
+                  location.pathname.includes('/edit') ||
                   location.pathname.includes('/map') ||
                   (location.pathname.includes('/hive/') && !location.pathname.includes('/stats') && !location.pathname.includes('/breeding') && location.pathname !== '/');
 
