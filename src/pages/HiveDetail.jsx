@@ -1,10 +1,29 @@
 import React from 'react';
 import { ArrowLeft, Edit2, Crown, BarChart2, BugOff, Hexagon, ChevronRight, Check } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { subscribeToHive, subscribeToInspections, subscribeToTreatments } from '../services/db';
 
 export default function HiveDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
+
+  const [hive, setHive] = React.useState(null);
+  const [inspections, setInspections] = React.useState([]);
+  const [treatments, setTreatments] = React.useState([]);
+
+  React.useEffect(() => {
+    const unsubHive = subscribeToHive(id, setHive);
+    const unsubIns = subscribeToInspections(id, setInspections);
+    const unsubTreat = subscribeToTreatments(id, setTreatments);
+    
+    return () => {
+      unsubHive();
+      unsubIns();
+      unsubTreat();
+    };
+  }, [id]);
+
+  if (!hive) return <div style={{padding: '32px', textAlign: 'center'}}>Lade Volk...</div>;
 
   return (
     <div className="p-4" style={{ padding: '16px', paddingBottom: '90px' }}>
@@ -13,7 +32,7 @@ export default function HiveDetail() {
         <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', color: 'var(--color-text-main)', cursor: 'pointer', padding: '8px' }}>
           <ArrowLeft size={24} />
         </button>
-        <h1 style={{ fontSize: '20px', fontWeight: 'bold', margin: '0' }}>Volk {id}</h1>
+        <h1 style={{ fontSize: '20px', fontWeight: 'bold', margin: '0' }}>Volk {hive.displayId || id.substring(0,4)}</h1>
         <button style={{ background: 'none', border: 'none', color: 'var(--color-primary-green)', cursor: 'pointer', padding: '8px' }}>
           <Edit2 size={24} />
         </button>
@@ -27,19 +46,19 @@ export default function HiveDetail() {
           <div style={{ position: 'absolute', bottom: '-12px', padding: '4px 12px', backgroundColor: 'var(--color-primary-green)', color: '#000', fontWeight: 'bold', borderRadius: '4px', fontSize: '12px' }}>AKTIV</div>
         </div>
         <div style={{ padding: '24px 16px 16px' }}>
-          <h2 style={{ fontSize: '24px', margin: '0 0 4px 0' }}>Volk {id}</h2>
+          <h2 style={{ fontSize: '24px', margin: '0 0 4px 0' }}>{hive.name || 'Unbenanntes Volk'}</h2>
           <p style={{ color: 'var(--color-text-secondary)', fontSize: '14px', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{color: 'var(--color-text-muted)'}}>📍</span> Hauptstand • Reihe 1
+            <span style={{color: 'var(--color-text-muted)'}}>📍</span> Standort: {hive.location || 'Unbekannt'}
           </p>
           
           <div style={{ display: 'flex', gap: '12px' }}>
             <div style={{ flex: 1, backgroundColor: 'var(--color-bg-dark)', borderRadius: '8px', padding: '10px', border: '1px solid var(--color-border)' }}>
               <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>Herkunft</div>
-              <div style={{ fontSize: '14px', fontWeight: '500' }}>Ableger Volk A04</div>
+              <div style={{ fontSize: '14px', fontWeight: '500' }}>{hive.origin || 'Zukauf/Schwarm'}</div>
             </div>
             <div style={{ flex: 1, backgroundColor: 'var(--color-bg-dark)', borderRadius: '8px', padding: '10px', border: '1px solid var(--color-border)' }}>
               <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>Rasse</div>
-              <div style={{ fontSize: '14px', fontWeight: '500' }}>Buckfast</div>
+              <div style={{ fontSize: '14px', fontWeight: '500' }}>{hive.race || 'Carnica'}</div>
             </div>
           </div>
         </div>
@@ -88,14 +107,14 @@ export default function HiveDetail() {
           <span style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>Aktuelle Stärke</span>
         </div>
         <div>
-          <h3 style={{ fontSize: '24px', margin: '0' }}>8 Gassen</h3>
-          <p style={{ color: 'var(--color-text-secondary)', fontSize: '12px', margin: '4px 0 16px 0' }}>Zander Maß</p>
+          <h3 style={{ fontSize: '24px', margin: '0' }}>{hive.strength || 'Normal'}</h3>
+          <p style={{ color: 'var(--color-text-secondary)', fontSize: '12px', margin: '4px 0 16px 0' }}>Basiert auf {inspections.length} Inspektionen</p>
         </div>
         <div>
           <div style={{ display: 'flex', gap: '4px', height: '8px', borderRadius: '4px', overflow: 'hidden', backgroundColor: 'var(--color-border)' }}>
-            <div style={{ width: '80%', backgroundColor: 'var(--color-primary-green)' }}></div>
+            <div style={{ width: hive.strength === 'Stark' ? '80%' : hive.strength === 'Schwach' ? '30%' : '50%', backgroundColor: hive.strength === 'Schwach' ? 'var(--status-critical)' : 'var(--color-primary-green)' }}></div>
           </div>
-          <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', textAlign: 'right', marginTop: '6px' }}>Trend: Steigend</div>
+          <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', textAlign: 'right', marginTop: '6px' }}>Letzte Durchsicht: {inspections.length > 0 ? new Date(inspections[0].date?.seconds * 1000).toLocaleDateString() : 'Nie'}</div>
         </div>
       </div>
 

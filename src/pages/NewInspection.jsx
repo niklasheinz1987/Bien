@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Calendar, Sun, Crown, Scissors, Save, ChevronDown } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { addInspection } from '../services/db';
 
 export default function NewInspection() {
   const navigate = useNavigate();
@@ -13,6 +14,22 @@ export default function NewInspection() {
   const [behavior, setBehavior] = useState('Sanftmütig');
 
   const broodOptions = ['Keine', 'Offen', 'Verdeckelt', 'Beides'];
+
+  const handleSave = async () => {
+    try {
+      await addInspection(id, {
+        queenSeen,
+        broodStatus,
+        frames,
+        droneCut,
+        behavior
+      });
+      navigate(-1);
+    } catch (e) {
+      console.error(e);
+      alert('Fehler beim Speichern der Durchsicht.');
+    }
+  };
 
   return (
     <div className="p-4" style={{ padding: '16px', paddingBottom: '90px' }}>
@@ -117,7 +134,7 @@ export default function NewInspection() {
         </div>
       </div>
 
-      <button className="btn-primary" onClick={() => navigate(-1)}>
+      <button className="btn-primary" onClick={handleSave}>
         <Save size={20} /> Speichern
       </button>
     </div>

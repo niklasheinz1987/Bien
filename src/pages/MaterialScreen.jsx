@@ -1,20 +1,39 @@
 import React, { useState } from 'react';
 import { Settings, ArrowLeft, Package, Layers, Home, Square, Droplet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { subscribeToMaterials, initMaterialDbIfEmpty, updateMaterialCount } from '../services/db';
 
 export default function MaterialScreen() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('lager'); // 'lager' or 'einsatz'
+  const [dbMaterials, setDbMaterials] = useState([]);
+
+  React.useEffect(() => {
+    initMaterialDbIfEmpty();
+    const unsub = subscribeToMaterials(setDbMaterials);
+    return () => unsub();
+  }, []);
+
+  const getMat = (id, fallback) => {
+    const item = dbMaterials.find(m => m.id === id);
+    return item ? item.available : fallback;
+  };
+
+  const handleUpdate = (id, current, delta) => {
+    if (current + delta >= 0) {
+      updateMaterialCount(id, current + delta);
+    }
+  };
 
   const materials = [
-    { title: 'Zargen', subtitle: '(DNM)', available: 12, icon: <Layers size={20} color="#ffaa00" />, iconBg: '#4a3b1e' },
-    { title: 'Böden', subtitle: '', available: 4, icon: <div style={{display: 'flex', flexDirection: 'column', gap: '2px'}}><div style={{width: '20px', height: '4px', backgroundColor: '#ffaa00', borderRadius: '2px'}}></div><div style={{width: '20px', height: '4px', backgroundColor: '#ffaa00', borderRadius: '2px'}}></div><div style={{width: '20px', height: '4px', backgroundColor: '#ffaa00', borderRadius: '2px'}}></div></div>, iconBg: '#4a3b1e' },
-    { title: 'Deckel', subtitle: '', available: 6, icon: <Home size={20} color="#ffaa00" />, iconBg: '#4a3b1e' },
+    { id: 'zargen', title: 'Zargen', subtitle: '(DNM)', available: getMat('zargen', 12), icon: <Layers size={20} color="#ffaa00" />, iconBg: '#4a3b1e' },
+    { id: 'boeden', title: 'Böden', subtitle: '', available: getMat('boeden', 4), icon: <div style={{display: 'flex', flexDirection: 'column', gap: '2px'}}><div style={{width: '20px', height: '4px', backgroundColor: '#ffaa00', borderRadius: '2px'}}></div><div style={{width: '20px', height: '4px', backgroundColor: '#ffaa00', borderRadius: '2px'}}></div><div style={{width: '20px', height: '4px', backgroundColor: '#ffaa00', borderRadius: '2px'}}></div></div>, iconBg: '#4a3b1e' },
+    { id: 'deckel', title: 'Deckel', subtitle: '', available: getMat('deckel', 6), icon: <Home size={20} color="#ffaa00" />, iconBg: '#4a3b1e' },
   ];
 
   const frames = [
-    { title: 'Rähmchen', subtitle: '(Leer)', subtext: 'Verdrahtet', available: 45, icon: <Square size={20} fill="var(--color-primary-green)" color="var(--color-primary-green)" />, iconBg: '#1a4a1c' },
-    { title: 'Mittelwände', subtitle: '', subtext: 'Wachs', available: 120, icon: <div style={{width: '20px', height: '20px', backgroundColor: 'var(--color-primary-green)', borderRadius: '4px', opacity: 0.8}}></div>, iconBg: '#1a4a1c' },
+    { id: 'raehmchen', title: 'Rähmchen', subtitle: '(Leer)', subtext: 'Verdrahtet', available: getMat('raehmchen', 45), icon: <Square size={20} fill="var(--color-primary-green)" color="var(--color-primary-green)" />, iconBg: '#1a4a1c' },
+    { id: 'mittelwande', title: 'Mittelwände', subtitle: '', subtext: 'Wachs', available: getMat('mittelwande', 120), icon: <div style={{width: '20px', height: '20px', backgroundColor: 'var(--color-primary-green)', borderRadius: '4px', opacity: 0.8}}></div>, iconBg: '#1a4a1c' },
   ];
 
   return (
@@ -91,9 +110,9 @@ export default function MaterialScreen() {
               <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>Verfügbar</div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <button style={{ width: '36px', height: '36px', borderRadius: '8px', border: 'none', backgroundColor: '#2a3b2c', color: 'var(--color-text-main)', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>—</button>
+              <button onClick={() => handleUpdate(item.id, item.available, -1)} style={{ width: '36px', height: '36px', borderRadius: '8px', border: 'none', backgroundColor: '#2a3b2c', color: 'var(--color-text-main)', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>—</button>
               <span style={{ fontSize: '18px', fontWeight: 'bold', width: '28px', textAlign: 'center' }}>{item.available}</span>
-              <button style={{ width: '36px', height: '36px', borderRadius: '8px', border: 'none', backgroundColor: 'var(--color-primary-green)', color: '#000', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+              <button onClick={() => handleUpdate(item.id, item.available, +1)} style={{ width: '36px', height: '36px', borderRadius: '8px', border: 'none', backgroundColor: 'var(--color-primary-green)', color: '#000', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>+</button>
             </div>
           </div>
         ))}
@@ -118,9 +137,9 @@ export default function MaterialScreen() {
               <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>{item.subtext}</div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <button style={{ width: '36px', height: '36px', borderRadius: '8px', border: 'none', backgroundColor: '#2a3b2c', color: 'var(--color-text-main)', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>—</button>
+              <button onClick={() => handleUpdate(item.id, item.available, -1)} style={{ width: '36px', height: '36px', borderRadius: '8px', border: 'none', backgroundColor: '#2a3b2c', color: 'var(--color-text-main)', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>—</button>
               <span style={{ fontSize: '18px', fontWeight: 'bold', width: '28px', textAlign: 'center' }}>{item.available}</span>
-              <button style={{ width: '36px', height: '36px', borderRadius: '8px', border: 'none', backgroundColor: 'var(--color-primary-green)', color: '#000', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+              <button onClick={() => handleUpdate(item.id, item.available, +1)} style={{ width: '36px', height: '36px', borderRadius: '8px', border: 'none', backgroundColor: 'var(--color-primary-green)', color: '#000', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>+</button>
             </div>
           </div>
         ))}
@@ -145,9 +164,9 @@ export default function MaterialScreen() {
           <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>Kg</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button style={{ width: '36px', height: '36px', borderRadius: '8px', border: 'none', backgroundColor: '#2a3b2c', color: 'var(--color-text-main)', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>—</button>
-          <span style={{ fontSize: '18px', fontWeight: 'bold', width: '36px', textAlign: 'center' }}>2.5</span>
-          <button style={{ width: '36px', height: '36px', borderRadius: '8px', border: 'none', backgroundColor: 'var(--color-primary-green)', color: '#000', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+          <button onClick={() => handleUpdate('futter', getMat('futter', 2.5), -0.5)} style={{ width: '36px', height: '36px', borderRadius: '8px', border: 'none', backgroundColor: '#2a3b2c', color: 'var(--color-text-main)', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>—</button>
+          <span style={{ fontSize: '18px', fontWeight: 'bold', width: '36px', textAlign: 'center' }}>{getMat('futter', 2.5)}</span>
+          <button onClick={() => handleUpdate('futter', getMat('futter', 2.5), +0.5)} style={{ width: '36px', height: '36px', borderRadius: '8px', border: 'none', backgroundColor: 'var(--color-primary-green)', color: '#000', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>+</button>
         </div>
       </div>
       

@@ -17,13 +17,18 @@ export default function Dashboard() {
   }, []);
 
   const handleAddDummyHive = async () => {
-    await addHive({
-      name: "Testkönigin " + Math.floor(Math.random() * 100),
-      displayId: "B" + Math.floor(Math.random() * 100).toString().padStart(2, '0'),
-      location: "Hauptstand",
-      strength: "Stark",
-      status: "Aktiv",
-    });
+    try {
+      await addHive({
+        name: "Testkönigin " + Math.floor(Math.random() * 100),
+        displayId: "B" + Math.floor(Math.random() * 100).toString().padStart(2, '0'),
+        location: "Hauptstand",
+        strength: "Stark",
+        status: "Aktiv",
+      });
+    } catch (error) {
+      console.error("Firebase Schreibfehler: ", error);
+      alert("Fehler beim Speichern. Prüfe deine Firebase Security Rules (Reiter 'Rules' in Firestore: allow read, write: if true;)");
+    }
   };
 
   const currentCount = hives.length;
