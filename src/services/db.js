@@ -79,7 +79,7 @@ export const addInspection = async (hiveId, inspectionData) => {
   });
 };
 
-// Treatments
+// Treatments (Varroa)
 export const subscribeToTreatments = (hiveId, callback) => {
   const q = query(collection(db, `hives/${hiveId}/treatments`), orderBy('date', 'desc'));
   return onSnapshot(q, (snapshot) => {
@@ -88,9 +88,9 @@ export const subscribeToTreatments = (hiveId, callback) => {
   });
 };
 
-export const addTreatment = async (hiveId, data) => {
+export const addTreatment = async (hiveId, treatmentData) => {
   return await addDoc(collection(db, `hives/${hiveId}/treatments`), {
-    ...data,
+    ...treatmentData,
     date: serverTimestamp()
   });
 };

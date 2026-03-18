@@ -1,6 +1,7 @@
 import React from 'react';
-import { HashRouter as Router, Routes, Route, NavLink, useLocation } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutGrid, CheckSquare, Calendar, Settings, Map as MapIcon, Package, User } from 'lucide-react';
+import { addHive } from './services/db';
 import './index.css';
 
 import Dashboard from './pages/Dashboard';
@@ -12,12 +13,31 @@ import MaterialScreen from './pages/MaterialScreen';
 import TasksScreen from './pages/TasksScreen';
 import BreedingScreen from './pages/BreedingScreen';
 import EditHiveScreen from './pages/EditHiveScreen';
+import NewTreatment from './pages/NewTreatment';
 
 // Placeholder Screens
 const CalendarScreen = () => <div style={{padding: '16px'}}><h1>Kalender</h1></div>;
 const ProfileScreen = () => <div style={{padding: '16px'}}><h1>Profil</h1></div>;
 
-const BottomNav = () => (
+const BottomNav = () => {
+  const navigate = useNavigate();
+  
+  const handleAddNewHive = async () => {
+    try {
+      const docRef = await addHive({
+        name: "Neues Volk",
+        displayId: "NEU",
+        status: "Aktiv",
+        strength: "Normal"
+      });
+      navigate(`/hive/${docRef.id}/edit`);
+    } catch (e) {
+      console.error(e);
+      alert("Fehler beim Anlegen eines neuen Volks.");
+    }
+  };
+
+  return (
   <nav className="bottom-nav" style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', backgroundColor: '#1a1d1a', borderTop: '1px solid #2a2d2a', padding: '12px 0 16px 0' }}>
     <NavLink to="/" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', color: 'var(--color-text-secondary)', flex: 1, textDecoration: 'none' }}>
       <LayoutGrid size={24} strokeWidth={1.5} />
@@ -33,7 +53,7 @@ const BottomNav = () => (
         width: '56px', height: '56px', borderRadius: '50%', backgroundColor: 'var(--color-primary-green)', 
         border: '4px solid #1a1d1a', display: 'flex', alignItems: 'center', justifyContent: 'center', 
         transform: 'translateY(-16px)', color: '#000', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0, 204, 34, 0.3)' 
-      }} onClick={() => alert("Hier könnten Sie ein neues Volk oder eine Durchsicht anlegen.")}>
+      }} onClick={handleAddNewHive}>
         <span style={{ fontSize: '32px', fontWeight: '400', marginTop: '-4px' }}>+</span>
       </button>
     </div>
@@ -47,7 +67,8 @@ const BottomNav = () => (
       <span style={{ fontSize: '10px' }}>Einstellungen</span>
     </NavLink>
   </nav>
-);
+  );
+};
 
 function App() {
   return (
@@ -60,6 +81,7 @@ function App() {
           <Route path="/hive/:id/stats" element={<StatsScreen />} />
           <Route path="/hive/:id/breeding" element={<BreedingScreen />} />
           <Route path="/inspection/new/:id" element={<NewInspection />} />
+          <Route path="/treatment/new/:id" element={<NewTreatment />} />
           <Route path="/map" element={<MapScreen />} />
           <Route path="/tasks" element={<TasksScreen />} />
           <Route path="/material" element={<MaterialScreen />} />
@@ -76,6 +98,7 @@ function BottomNavWrapper() {
   const location = useLocation();
   // Keep navigation active ONLY on main tabs, hide it on detail screens like Forms, Stats, Breeding, Maps
   const hideNav = location.pathname.includes('/inspection/new') || 
+                  location.pathname.includes('/treatment/new') ||
                   location.pathname.includes('/stats') ||
                   location.pathname.includes('/breeding') ||
                   location.pathname.includes('/edit') ||

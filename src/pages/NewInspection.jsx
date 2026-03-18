@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Calendar, Sun, Crown, Scissors, Save, ChevronDown } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { addInspection } from '../services/db';
+import { addInspection, updateHive } from '../services/db';
 
 export default function NewInspection() {
   const navigate = useNavigate();
@@ -23,6 +23,11 @@ export default function NewInspection() {
         frames,
         droneCut,
         behavior
+      });
+      await updateHive(id, {
+        frames: frames,
+        strength: frames > 7 ? 'Stark' : frames < 4 ? 'Schwach' : 'Normal',
+        trend: 'Zuletzt geprüft'
       });
       navigate(-1);
     } catch (e) {

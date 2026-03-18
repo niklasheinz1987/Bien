@@ -201,6 +201,7 @@ export default function HiveDetail() {
 
       {activeTab === 'Behandlungen' && (
          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+           <button className="btn-primary" onClick={() => navigate(`/treatment/new/${id}`)} style={{ marginBottom: '16px' }}>+ Neue Behandlung eintragen</button>
            {treatments.length === 0 && <p style={{color: 'var(--color-text-secondary)'}}>Bisher keine Behandlungen protokolliert.</p>}
            {treatments.map(t => (
               <div key={t.id} className="card" style={{ padding: '16px' }}>

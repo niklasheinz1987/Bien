@@ -120,9 +120,7 @@ export default function Dashboard() {
         })}
       </div>
 
-      <button className="fab" onClick={handleAddDummyHive}>
-        <span style={{ fontSize: '32px', fontWeight: '400', marginTop: '-4px' }}>+</span>
-      </button>
+      {/* Removed FAB */}
     </div>
   );
 }
