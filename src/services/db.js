@@ -1,4 +1,4 @@
-import { collection, doc, addDoc, getDocs, onSnapshot, query, orderBy, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
+import { collection, doc, addDoc, getDocs, onSnapshot, query, orderBy, setDoc, serverTimestamp, getDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 
 // Hives
@@ -40,6 +40,11 @@ export const addHive = async (hiveData) => {
 export const updateHive = async (id, updateData) => {
   const docRef = doc(db, 'hives', id);
   return await setDoc(docRef, updateData, { merge: true });
+};
+
+export const deleteHive = async (id) => {
+  const docRef = doc(db, 'hives', id);
+  return await deleteDoc(docRef);
 };
 
 // Evaluations (Zuchtbewertung)

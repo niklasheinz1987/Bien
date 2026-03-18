@@ -10,6 +10,7 @@ export default function HiveDetail() {
   const [hive, setHive] = React.useState(null);
   const [inspections, setInspections] = React.useState([]);
   const [treatments, setTreatments] = React.useState([]);
+  const [activeTab, setActiveTab] = React.useState('Übersicht');
 
   React.useEffect(() => {
     const unsubHive = subscribeToHive(id, setHive);
@@ -42,8 +43,8 @@ export default function HiveDetail() {
       <div className="card" style={{ padding: '0', overflow: 'hidden', marginBottom: '16px' }}>
         <div style={{ height: '120px', backgroundColor: '#4a3b2c', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {/* Picture of comb */}
-          <img src="https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=400&h=200&fit=crop" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }} alt="Waben" />
-          <div style={{ position: 'absolute', bottom: '-12px', padding: '4px 12px', backgroundColor: 'var(--color-primary-green)', color: '#000', fontWeight: 'bold', borderRadius: '4px', fontSize: '12px' }}>AKTIV</div>
+          <img src={hive.imageUrl || "https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=400&h=200&fit=crop"} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }} alt="Waben" />
+          <div style={{ position: 'absolute', bottom: '-12px', padding: '4px 12px', backgroundColor: 'var(--color-primary-green)', color: '#000', fontWeight: 'bold', borderRadius: '4px', fontSize: '12px' }}>{hive.status?.toUpperCase() || 'AKTIV'}</div>
         </div>
         <div style={{ padding: '24px 16px 16px' }}>
           <h2 style={{ fontSize: '24px', margin: '0 0 4px 0' }}>{hive.name || 'Unbenanntes Volk'}</h2>
@@ -71,11 +72,24 @@ export default function HiveDetail() {
 
       {/* Tabs */}
       <div style={{ display: 'flex', borderBottom: '1px solid var(--color-border)', marginBottom: '24px', overflowX: 'auto', scrollbarWidth: 'none' }}>
-        <div style={{ padding: '12px 16px', color: 'var(--color-primary-green)', borderBottom: '2px solid var(--color-primary-green)', fontWeight: 'bold', whiteSpace: 'nowrap' }}>Übersicht</div>
-        <div style={{ padding: '12px 16px', color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>Kontrollen</div>
-        <div style={{ padding: '12px 16px', color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>Behandlungen</div>
-        <div style={{ padding: '12px 16px', color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>Statistik</div>
+        {['Übersicht', 'Kontrollen', 'Behandlungen', 'Statistik'].map(tab => (
+          <div 
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            style={{ 
+              padding: '12px 16px', cursor: 'pointer', whiteSpace: 'nowrap',
+              color: activeTab === tab ? 'var(--color-primary-green)' : 'var(--color-text-secondary)', 
+              borderBottom: activeTab === tab ? '2px solid var(--color-primary-green)' : 'none', 
+              fontWeight: activeTab === tab ? 'bold' : 'normal'
+            }}
+          >
+            {tab}
+          </div>
+        ))}
       </div>
+
+      {activeTab === 'Übersicht' && (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
       {/* Stats Cards */}
       {/* Königin */}
@@ -166,6 +180,46 @@ export default function HiveDetail() {
           </div>
         </div>
       </div>
+      </div>
+      )}
+
+      {activeTab === 'Kontrollen' && (
+         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+           <button className="btn-primary" onClick={() => navigate(`/inspection/new/${id}`)} style={{ marginBottom: '16px' }}>+ Neue Kontrolle eintragen</button>
+           {inspections.length === 0 && <p style={{color: 'var(--color-text-secondary)'}}>Bisher keine Kontrollen protokolliert.</p>}
+           {inspections.map(i => (
+              <div key={i.id} className="card" style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{fontWeight: 'bold', fontSize: '16px', marginBottom: '4px'}}>{i.date?.seconds ? new Date(i.date.seconds*1000).toLocaleDateString() : 'Unbekannt'}</div>
+                  <div style={{fontSize: '13px', color: 'var(--color-text-secondary)'}}>{i.frames || 0} Gassen | Brut: {i.broodStatus || '-'}</div>
+                </div>
+                {i.queenSeen && <div style={{ fontSize: '11px', color: 'var(--color-primary-green)', backgroundColor: '#00cc2222', padding: '4px 8px', borderRadius: '12px', fontWeight: 'bold'}}>Königin gesehen</div>}
+              </div>
+           ))}
+         </div>
+      )}
+
+      {activeTab === 'Behandlungen' && (
+         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+           {treatments.length === 0 && <p style={{color: 'var(--color-text-secondary)'}}>Bisher keine Behandlungen protokolliert.</p>}
+           {treatments.map(t => (
+              <div key={t.id} className="card" style={{ padding: '16px' }}>
+                <div style={{fontWeight: 'bold', fontSize: '16px', marginBottom: '4px'}}>{t.date?.seconds ? new Date(t.date.seconds*1000).toLocaleDateString() : 'Unbekannt'} - {t.product || 'Behandlung'}</div>
+                <div style={{fontSize: '13px', color: 'var(--color-text-secondary)'}}>{t.method || 'Standard'} {t.amount ? `(${t.amount})` : ''}</div>
+              </div>
+           ))}
+         </div>
+      )}
+
+      {activeTab === 'Statistik' && (
+         <div style={{ textAlign: 'center', padding: '32px 16px' }}>
+           <BarChart2 size={64} color="var(--color-primary-green)" style={{opacity: 0.5, marginBottom: '24px'}} />
+           <p style={{ fontSize: '16px', marginBottom: '24px', color: 'var(--color-text-main)' }}>Hier finden Sie ausführliche Diagramme zu Wabengassen und Fütterung.</p>
+           <button className="btn-primary" onClick={() => navigate(`/hive/${id}/stats`)}>
+              Detaillierte Statistik öffnen
+           </button>
+         </div>
+      )}
     </div>
   );
 }

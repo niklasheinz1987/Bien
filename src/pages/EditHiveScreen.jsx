@@ -1,13 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, Info, Crown, BarChart2, BugOff, Hexagon } from 'lucide-react';
+import { ArrowLeft, Save, Info, Crown, BarChart2, BugOff, Hexagon, Trash2, MapPin, Image as ImageIcon } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { subscribeToHive, updateHive } from '../services/db';
+import { subscribeToHive, updateHive, deleteHive } from '../services/db';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix for default marker icon in leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+});
+
+function LocationPicker({ position, setPosition }) {
+  useMapEvents({
+    click(e) {
+      setPosition(e.latlng);
+    },
+  });
+  return position === null ? null : (
+    <Marker position={position}></Marker>
+  );
+}
 
 export default function EditHiveScreen() {
   const navigate = useNavigate();
   const { id } = useParams();
   
   const [hive, setHive] = useState(null);
+  const [position, setPosition] = useState(null); // {lat, lng}
+  
   const [formData, setFormData] = useState({
     name: '',
     displayId: '',
@@ -16,6 +40,7 @@ export default function EditHiveScreen() {
     race: '',
     strength: 'Normal',
     status: 'Aktiv',
+    imageUrl: '',
     
     // Königin
     queenName: '',
@@ -50,6 +75,7 @@ export default function EditHiveScreen() {
           race: data.race || '',
           strength: data.strength || 'Normal',
           status: data.status || 'Aktiv',
+          imageUrl: data.imageUrl || '',
           
           queenName: data.queenName || '',
           queenDate: data.queenDate || '',
@@ -67,6 +93,13 @@ export default function EditHiveScreen() {
           feedKg: data.feedKg || 0,
           supers: data.supers || 0
         });
+        
+        if (data.lat && data.lng) {
+          setPosition({ lat: data.lat, lng: data.lng });
+        } else {
+          // Default location: Center of Germany roughly
+          setPosition({ lat: 51.1657, lng: 10.4515 }); 
+        }
       }
     });
     return () => unsub();
@@ -83,7 +116,13 @@ export default function EditHiveScreen() {
   const handleSave = async (e) => {
     e.preventDefault();
     try {
-      await updateHive(id, formData);
+      const dataToSave = { ...formData };
+      if (position) {
+        dataToSave.lat = position.lat;
+        dataToSave.lng = position.lng;
+      }
+      
+      await updateHive(id, dataToSave);
       navigate(-1);
     } catch (e) {
       console.error(e);
@@ -91,7 +130,19 @@ export default function EditHiveScreen() {
     }
   };
 
-  if (!hive) return <div style={{padding: '32px', textAlign: 'center'}}>Lade Daten...</div>;
+  const handleDelete = async () => {
+    if (window.confirm("Sind Sie sicher, dass Sie dieses Volk unwiderruflich löschen möchten?")) {
+      try {
+        await deleteHive(id);
+        navigate('/'); // Zurück zum Dashboard
+      } catch (err) {
+        console.error(err);
+        alert('Fehler beim Löschen des Volks.');
+      }
+    }
+  };
+
+  if (!hive || !position) return <div style={{padding: '32px', textAlign: 'center'}}>Lade Daten...</div>;
 
   const inputStyle = { width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-dark)', color: 'var(--color-text-main)' };
   const labelStyle = { display: 'block', fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '8px' };
@@ -99,7 +150,7 @@ export default function EditHiveScreen() {
   return (
     <div className="p-4" style={{ padding: '16px', paddingBottom: '90px' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', position: 'sticky', top: 0, backgroundColor: 'var(--color-bg-dark)', paddingTop: '16px', zIndex: 10 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', position: 'sticky', top: 0, backgroundColor: 'var(--color-bg-dark)', paddingTop: '16px', zIndex: 100 }}>
         <button type="button" onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', color: 'var(--color-text-main)', cursor: 'pointer', padding: '8px' }}>
           <ArrowLeft size={24} />
         </button>
@@ -117,9 +168,33 @@ export default function EditHiveScreen() {
           </div>
           <div><label style={labelStyle}>Kürzel (z.B. B01)</label><input type="text" name="displayId" value={formData.displayId} onChange={handleChange} style={inputStyle} required /></div>
           <div><label style={labelStyle}>Name</label><input type="text" name="name" value={formData.name} onChange={handleChange} style={inputStyle} required /></div>
-          <div><label style={labelStyle}>Standort</label><input type="text" name="location" value={formData.location} onChange={handleChange} style={inputStyle} /></div>
+          <div><label style={labelStyle}>Standort (Text)</label><input type="text" name="location" value={formData.location} onChange={handleChange} style={inputStyle} /></div>
           <div><label style={labelStyle}>Grundstärke</label><select name="strength" value={formData.strength} onChange={handleChange} style={inputStyle}><option value="Schwach">Schwach</option><option value="Normal">Normal</option><option value="Stark">Stark</option></select></div>
           <div><label style={labelStyle}>Status</label><select name="status" value={formData.status} onChange={handleChange} style={inputStyle}><option value="Aktiv">Aktiv</option><option value="Aufgelöst">Aufgelöst / Eingegangen</option><option value="Verkauft">Verkauft</option></select></div>
+        </div>
+        
+        {/* BILD & KARTE */}
+        <div className="card" style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-primary-green)', marginBottom: '8px' }}>
+            <ImageIcon size={18} />
+            <h2 style={{ fontSize: '16px', fontWeight: '500', margin: 0 }}>Bild URL</h2>
+          </div>
+          <div>
+            <label style={labelStyle}>Link zu einem Bild (URL)</label>
+            <input type="url" name="imageUrl" value={formData.imageUrl} onChange={handleChange} placeholder="https://beispiel.de/bild.jpg" style={inputStyle} />
+          </div>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-primary-green)', margin: '16px 0 8px 0' }}>
+            <MapPin size={18} />
+            <h2 style={{ fontSize: '16px', fontWeight: '500', margin: 0 }}>Ort auf Karte wählen</h2>
+          </div>
+          <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '8px' }}>Tippen Sie auf die Karte, um den Standort für dieses Volk zu setzen.</p>
+          <div style={{ height: '240px', width: '100%', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
+            <MapContainer center={position} zoom={position.lat === 51.1657 ? 5 : 14} style={{ height: '100%', width: '100%', zIndex: 1 }}>
+              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+              <LocationPicker position={position} setPosition={setPosition} />
+            </MapContainer>
+          </div>
         </div>
 
         {/* GENETIK */}
@@ -173,9 +248,20 @@ export default function EditHiveScreen() {
           <div><label style={labelStyle}>Aufgesetzte Honigräume</label><input type="number" name="supers" value={formData.supers} onChange={handleChange} style={inputStyle} /></div>
         </div>
 
-        <button type="submit" className="btn-primary" style={{ marginTop: '16px' }}>
-          <Save size={20} /> Änderungen Speichern
-        </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
+          <button type="submit" className="btn-primary" style={{ width: '100%', padding: '16px' }}>
+            <Save size={20} /> Änderungen Speichern
+          </button>
+          
+          <button type="button" onClick={handleDelete} style={{ 
+            width: '100%', padding: '16px', backgroundColor: 'transparent', 
+            border: '1px solid #ff4d4d', color: '#ff4d4d', borderRadius: '12px', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+            fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' 
+          }}>
+            <Trash2 size={20} /> Volk unwiderruflich löschen
+          </button>
+        </div>
       </form>
     </div>
   );
