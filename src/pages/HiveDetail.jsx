@@ -11,6 +11,7 @@ export default function HiveDetail() {
   const [inspections, setInspections] = React.useState([]);
   const [treatments, setTreatments] = React.useState([]);
   const [activeTab, setActiveTab] = React.useState('Übersicht');
+  const [expandedInspectionId, setExpandedInspectionId] = React.useState(null);
 
   React.useEffect(() => {
     const unsubHive = subscribeToHive(id, setHive);
@@ -187,15 +188,28 @@ export default function HiveDetail() {
          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
            <button className="btn-primary" onClick={() => navigate(`/inspection/new/${id}`)} style={{ marginBottom: '16px' }}>+ Neue Kontrolle eintragen</button>
            {inspections.length === 0 && <p style={{color: 'var(--color-text-secondary)'}}>Bisher keine Kontrollen protokolliert.</p>}
-           {inspections.map(i => (
-              <div key={i.id} className="card" style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{fontWeight: 'bold', fontSize: '16px', marginBottom: '4px'}}>{i.date?.seconds ? new Date(i.date.seconds*1000).toLocaleDateString() : 'Unbekannt'}</div>
-                  <div style={{fontSize: '13px', color: 'var(--color-text-secondary)'}}>{i.frames || 0} Gassen | Brut: {i.broodStatus || '-'}</div>
+           {inspections.map(i => {
+              const isExpanded = expandedInspectionId === i.id;
+              return (
+              <div key={i.id} className="card" onClick={() => setExpandedInspectionId(isExpanded ? null : i.id)} style={{ padding: '16px', cursor: 'pointer', transition: '0.2s' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{fontWeight: 'bold', fontSize: '16px', marginBottom: '4px'}}>{i.date?.seconds ? new Date(i.date.seconds*1000).toLocaleDateString() : 'Unbekannt'}</div>
+                    <div style={{fontSize: '13px', color: 'var(--color-text-secondary)'}}>{i.frames || 0} Gassen | Brut: {i.broodStatus || '-'}</div>
+                  </div>
+                  {i.queenSeen && <div style={{ fontSize: '11px', color: 'var(--color-primary-green)', backgroundColor: '#00cc2222', padding: '4px 8px', borderRadius: '12px', fontWeight: 'bold'}}>Königin gesehen</div>}
                 </div>
-                {i.queenSeen && <div style={{ fontSize: '11px', color: 'var(--color-primary-green)', backgroundColor: '#00cc2222', padding: '4px 8px', borderRadius: '12px', fontWeight: 'bold'}}>Königin gesehen</div>}
+                
+                {isExpanded && (
+                   <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--color-border)', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--color-text-secondary)' }}>Verhalten:</span> <span>{i.behavior || '-'}</span></div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--color-text-secondary)' }}>Drohnenrahmen:</span> <span>{i.droneCut ? 'Geschnitten' : 'Nicht geschnitten'}</span></div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--color-text-secondary)' }}>Königin:</span> <span>{i.queenSeen ? 'Gesehen' : 'Nicht gesehen'}</span></div>
+                   </div>
+                )}
               </div>
-           ))}
+              );
+           })}
          </div>
       )}
 

@@ -15,9 +15,9 @@ import BreedingScreen from './pages/BreedingScreen';
 import EditHiveScreen from './pages/EditHiveScreen';
 import NewTreatment from './pages/NewTreatment';
 import NewTaskScreen from './pages/NewTaskScreen';
+import CalendarScreen from './pages/CalendarScreen';
 
 // Placeholder Screens
-const CalendarScreen = () => <div style={{padding: '16px'}}><h1>Kalender</h1></div>;
 const ProfileScreen = () => <div style={{padding: '16px'}}><h1>Profil</h1></div>;
 
 const BottomNav = () => {

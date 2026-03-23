@@ -152,6 +152,27 @@ export const updateTaskStatus = async (taskId, isDone) => {
   return await setDoc(docRef, { done: isDone }, { merge: true });
 };
 
+// Calendar Events
+export const subscribeToEvents = (callback) => {
+  const q = query(collection(db, 'events'), orderBy('date', 'asc'));
+  return onSnapshot(q, (snapshot) => {
+    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    callback(data);
+  });
+};
+
+export const addEvent = async (eventData) => {
+  // eventData should have { title, date (YYYY-MM-DD), time, type }
+  return await addDoc(collection(db, 'events'), {
+    ...eventData,
+    createdAt: serverTimestamp()
+  });
+};
+
+export const deleteEvent = async (eventId) => {
+  return await deleteDoc(doc(db, 'events', eventId));
+};
+
 export const addDummyTasksIfEmpty = async () => {
   const snap = await getDocs(collection(db, 'tasks'));
   if (snap.empty) {
