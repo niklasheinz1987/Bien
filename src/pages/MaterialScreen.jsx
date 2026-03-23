@@ -170,10 +170,7 @@ export default function MaterialScreen() {
         </div>
       </div>
       
-      <button className="fab">
-        <span style={{ fontSize: '32px', fontWeight: '400', marginTop: '-4px' }}>+</span>
-      </button>
-
+      {/* removed FAB */}
     </div>
   );
 }

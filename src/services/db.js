@@ -136,6 +136,17 @@ export const subscribeToTasks = (callback) => {
   });
 };
 
+export const addTask = async (taskData) => {
+  return await addDoc(collection(db, 'tasks'), {
+    ...taskData,
+    createdAt: serverTimestamp()
+  });
+};
+
+export const deleteTask = async (taskId) => {
+  return await deleteDoc(doc(db, 'tasks', taskId));
+};
+
 export const updateTaskStatus = async (taskId, isDone) => {
   const docRef = doc(db, 'tasks', taskId);
   return await setDoc(docRef, { done: isDone }, { merge: true });

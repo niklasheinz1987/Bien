@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { RotateCcw, Scissors, Beaker, Bug, ArrowRightSquare, Crown, CheckCircle2 } from 'lucide-react';
+import { RotateCcw, Scissors, Beaker, Bug, ArrowRightSquare, Crown, CheckCircle2, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { subscribeToTasks, addDummyTasksIfEmpty, updateTaskStatus } from '../services/db';
+import { subscribeToTasks, addDummyTasksIfEmpty, updateTaskStatus, deleteTask } from '../services/db';
 
 export default function TasksScreen() {
   const navigate = useNavigate();
@@ -16,6 +16,13 @@ export default function TasksScreen() {
 
   const handleToggle = (id, currentStatus) => {
     updateTaskStatus(id, !currentStatus);
+  };
+
+  const handleDelete = (e, id) => {
+    e.stopPropagation();
+    if(window.confirm("Aufgabe endgültig löschen?")) {
+       deleteTask(id);
+    }
   };
 
   const getIconForTitle = (title) => {
@@ -70,8 +77,14 @@ export default function TasksScreen() {
                 <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '2px', textDecoration: task.done ? 'line-through' : 'none' }}>{task.title}</div>
                 <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>{task.subtitle}</div>
               </div>
-              <div style={{ width: '28px', height: '28px', borderRadius: '50%', border: task.done ? 'none' : '2px solid var(--color-border)', color: 'var(--color-primary-green)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {task.done && <CheckCircle2 size={28} />}
+              
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div onClick={(e) => handleDelete(e, task.id)} style={{ padding: '8px', color: '#ff4d4d', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Trash2 size={20} />
+                </div>
+                <div style={{ width: '28px', height: '28px', borderRadius: '50%', border: task.done ? 'none' : '2px solid var(--color-border)', color: 'var(--color-primary-green)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {task.done && <CheckCircle2 size={28} />}
+                </div>
               </div>
             </div>
           );
@@ -155,9 +168,7 @@ export default function TasksScreen() {
         </>
       )}
 
-      <button className="fab">
-        <span style={{ fontSize: '32px', fontWeight: '400', marginTop: '-4px' }}>+</span>
-      </button>
+      {/* removed FAB */}
     </div>
   );
 }

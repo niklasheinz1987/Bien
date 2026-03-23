@@ -80,11 +80,6 @@ export default function MapScreen() {
         </MapContainer>
       </div>
       
-      {/* Floating Plus Button (Above sheet) */}
-      <button className="fab" style={{ bottom: '260px', right: '16px' }}>
-        <span style={{ fontSize: '32px', fontWeight: '400', marginTop: '-4px' }}>+</span>
-      </button>
-
       {/* Bottom Sheet Card */}
       <div style={{ position: 'absolute', bottom: '80px', left: 0, right: 0, backgroundColor: 'var(--color-bg-dark)', borderTopLeftRadius: '24px', borderTopRightRadius: '24px', zIndex: 1000, padding: '24px' }}>
         <div style={{ width: '40px', height: '4px', backgroundColor: 'var(--color-border)', borderRadius: '2px', margin: '0 auto 20px auto' }}></div>

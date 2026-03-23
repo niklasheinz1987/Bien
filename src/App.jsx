@@ -14,6 +14,7 @@ import TasksScreen from './pages/TasksScreen';
 import BreedingScreen from './pages/BreedingScreen';
 import EditHiveScreen from './pages/EditHiveScreen';
 import NewTreatment from './pages/NewTreatment';
+import NewTaskScreen from './pages/NewTaskScreen';
 
 // Placeholder Screens
 const CalendarScreen = () => <div style={{padding: '16px'}}><h1>Kalender</h1></div>;
@@ -21,8 +22,10 @@ const ProfileScreen = () => <div style={{padding: '16px'}}><h1>Profil</h1></div>
 
 const BottomNav = () => {
   const navigate = useNavigate();
+  const [showMenu, setShowMenu] = React.useState(false);
   
   const handleAddNewHive = async () => {
+    setShowMenu(false);
     try {
       const docRef = await addHive({
         name: "Neues Volk",
@@ -37,8 +40,28 @@ const BottomNav = () => {
     }
   };
 
+  const handleAddNewTask = () => {
+    setShowMenu(false);
+    navigate('/tasks/new');
+  };
+
   return (
-  <nav className="bottom-nav" style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', backgroundColor: '#1a1d1a', borderTop: '1px solid #2a2d2a', padding: '12px 0 16px 0' }}>
+  <>
+    {showMenu && (
+      <div 
+        onClick={() => setShowMenu(false)}
+        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 999 }}
+      >
+        <div 
+          onClick={e => e.stopPropagation()}
+          style={{ position: 'absolute', bottom: '90px', left: '50%', transform: 'translateX(-50%)', backgroundColor: 'var(--color-bg-dark)', border: '1px solid var(--color-border)', borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px', width: '220px', boxShadow: '0 8px 32px rgba(0,0,0,0.4)', zIndex: 1000 }}
+        >
+          <button className="btn-primary" onClick={handleAddNewHive} style={{ fontSize: '14px', padding: '12px' }}>🍯 Neues Volk</button>
+          <button className="btn-primary" onClick={handleAddNewTask} style={{ backgroundColor: '#2a3b2c', color: 'var(--color-text-main)', fontSize: '14px', padding: '12px' }}>📋 Neue Aufgabe</button>
+        </div>
+      </div>
+    )}
+  <nav className="bottom-nav" style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', backgroundColor: '#1a1d1a', borderTop: '1px solid #2a2d2a', padding: '12px 0 16px 0', zIndex: 100 }}>
     <NavLink to="/" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', color: 'var(--color-text-secondary)', flex: 1, textDecoration: 'none' }}>
       <LayoutGrid size={24} strokeWidth={1.5} />
       <span style={{ fontSize: '10px' }}>Völker</span>
@@ -53,8 +76,8 @@ const BottomNav = () => {
         width: '56px', height: '56px', borderRadius: '50%', backgroundColor: 'var(--color-primary-green)', 
         border: '4px solid #1a1d1a', display: 'flex', alignItems: 'center', justifyContent: 'center', 
         transform: 'translateY(-16px)', color: '#000', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0, 204, 34, 0.3)' 
-      }} onClick={handleAddNewHive}>
-        <span style={{ fontSize: '32px', fontWeight: '400', marginTop: '-4px' }}>+</span>
+      }} onClick={() => setShowMenu(!showMenu)}>
+        <span style={{ fontSize: '32px', fontWeight: '400', marginTop: '-4px', transform: showMenu ? 'rotate(45deg)' : 'none', transition: '0.2s', display: 'inline-block' }}>+</span>
       </button>
     </div>
 
@@ -67,6 +90,7 @@ const BottomNav = () => {
       <span style={{ fontSize: '10px' }}>Einstellungen</span>
     </NavLink>
   </nav>
+  </>
   );
 };
 
@@ -82,6 +106,7 @@ function App() {
           <Route path="/hive/:id/breeding" element={<BreedingScreen />} />
           <Route path="/inspection/new/:id" element={<NewInspection />} />
           <Route path="/treatment/new/:id" element={<NewTreatment />} />
+          <Route path="/tasks/new" element={<NewTaskScreen />} />
           <Route path="/map" element={<MapScreen />} />
           <Route path="/tasks" element={<TasksScreen />} />
           <Route path="/material" element={<MaterialScreen />} />
@@ -99,10 +124,10 @@ function BottomNavWrapper() {
   // Keep navigation active ONLY on main tabs, hide it on detail screens like Forms, Stats, Breeding, Maps
   const hideNav = location.pathname.includes('/inspection/new') || 
                   location.pathname.includes('/treatment/new') ||
+                  location.pathname.includes('/tasks/new') ||
                   location.pathname.includes('/stats') ||
                   location.pathname.includes('/breeding') ||
-                  location.pathname.includes('/edit') ||
-                  location.pathname.includes('/map');
+                  location.pathname.includes('/edit');
 
   // Modified bottom nav list according to material image bottom nav (Völker, Kalender, Material, Profil) -> Added Aufgaben too
   if (hideNav) {
