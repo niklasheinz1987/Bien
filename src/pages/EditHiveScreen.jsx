@@ -180,8 +180,53 @@ export default function EditHiveScreen() {
             <h2 style={{ fontSize: '16px', fontWeight: '500', margin: 0 }}>Bild URL</h2>
           </div>
           <div>
-            <label style={labelStyle}>Link zu einem Bild (URL)</label>
-            <input type="url" name="imageUrl" value={formData.imageUrl} onChange={handleChange} placeholder="https://beispiel.de/bild.jpg" style={inputStyle} />
+            <label style={labelStyle}>Eigenes Bild hochladen oder Link eingeben</label>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+              <input type="text" name="imageUrl" value={formData.imageUrl} onChange={handleChange} placeholder="https://beispiel.de/bild.jpg" style={{...inputStyle, flex: 1}} />
+              <label style={{
+                cursor: 'pointer', backgroundColor: 'var(--color-primary-green)',
+                color: '#000', padding: '12px 16px', borderRadius: '8px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', gap: '8px'
+              }}>
+                <ImageIcon size={20} /> Hochladen
+                <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  if (file.size > 10 * 1024 * 1024) return alert('Bilddatei ist zu groß (max. 10MB).');
+
+                  const reader = new FileReader();
+                  reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                      const canvas = document.createElement('canvas');
+                      const MAX_WIDTH = 800;
+                      const MAX_HEIGHT = 800;
+                      let width = img.width;
+                      let height = img.height;
+                      
+                      if (width > height) {
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                      } else {
+                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                      }
+                      
+                      canvas.width = width;
+                      canvas.height = height;
+                      const ctx = canvas.getContext('2d');
+                      ctx.drawImage(img, 0, 0, width, height);
+                      
+                      const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                      setFormData(prev => ({ ...prev, imageUrl: compressedBase64 }));
+                    };
+                    img.src = event.target.result;
+                  };
+                  reader.readAsDataURL(file);
+                }} />
+              </label>
+            </div>
+            {formData.imageUrl && formData.imageUrl.startsWith('data:image') && (
+              <div style={{ fontSize: '11px', color: 'var(--color-primary-green)', marginTop: '4px' }}>✓ Bild erfolgreich komprimiert und geladen</div>
+            )}
           </div>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-primary-green)', margin: '16px 0 8px 0' }}>
