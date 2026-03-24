@@ -73,7 +73,7 @@ export default function HiveDetail() {
 
       {/* Tabs */}
       <div style={{ display: 'flex', borderBottom: '1px solid var(--color-border)', marginBottom: '24px', overflowX: 'auto', scrollbarWidth: 'none' }}>
-        {['Übersicht', 'Kontrollen', 'Behandlungen', 'Statistik'].map(tab => (
+        {['Übersicht', 'Durchsicht', 'Behandlungen', 'Statistik'].map(tab => (
           <div 
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -184,9 +184,8 @@ export default function HiveDetail() {
       </div>
       )}
 
-      {activeTab === 'Kontrollen' && (
+      {activeTab === 'Durchsicht' && (
          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-           <button className="btn-primary" onClick={() => navigate(`/inspection/new/${id}`)} style={{ marginBottom: '16px' }}>+ Neue Kontrolle eintragen</button>
            {inspections.length === 0 && <p style={{color: 'var(--color-text-secondary)'}}>Bisher keine Kontrollen protokolliert.</p>}
            {inspections.map(i => {
               const isExpanded = expandedInspectionId === i.id;

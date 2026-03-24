@@ -22,7 +22,11 @@ const ProfileScreen = () => <div style={{padding: '16px'}}><h1>Profil</h1></div>
 
 const BottomNav = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [showMenu, setShowMenu] = React.useState(false);
+  
+  const hiveMatch = location.pathname.match(/\/hive\/([a-zA-Z0-9_\-]+)$/);
+  const currentHiveId = hiveMatch && !location.pathname.includes('/edit') && !location.pathname.includes('/stats') && !location.pathname.includes('/breeding') ? hiveMatch[1] : null;
   
   const handleAddNewHive = async () => {
     setShowMenu(false);
@@ -45,6 +49,13 @@ const BottomNav = () => {
     navigate('/tasks/new');
   };
 
+  const handleAddNewInspection = () => {
+    setShowMenu(false);
+    if(currentHiveId) {
+      navigate(`/inspection/new/${currentHiveId}`);
+    }
+  };
+
   return (
   <>
     {showMenu && (
@@ -58,6 +69,7 @@ const BottomNav = () => {
         >
           <button className="btn-primary" onClick={handleAddNewHive} style={{ fontSize: '14px', padding: '12px' }}>🍯 Neues Volk</button>
           <button className="btn-primary" onClick={handleAddNewTask} style={{ backgroundColor: '#2a3b2c', color: 'var(--color-text-main)', fontSize: '14px', padding: '12px' }}>📋 Neue Aufgabe</button>
+          {currentHiveId && <button className="btn-primary" onClick={handleAddNewInspection} style={{ backgroundColor: '#1a4a1c', color: 'var(--color-primary-green)', fontSize: '14px', padding: '12px' }}>🔍 Neue Durchsicht</button>}
         </div>
       </div>
     )}

@@ -122,9 +122,14 @@ export default function NewInspection() {
       {/* VERHALTEN */}
       <div style={{ marginBottom: '32px' }}>
         <div style={{ fontSize: '12px', fontWeight: 'bold', letterSpacing: '1px', color: 'var(--color-text-secondary)', marginBottom: '12px' }}>VERHALTEN</div>
-        <div className="card" style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', cursor: 'pointer' }}>
-          <span style={{ fontSize: '16px', fontWeight: '500' }}>{behavior}</span>
-          <ChevronDown size={20} color="var(--color-primary-green)" />
+        <div className="card" style={{ padding: '0', position: 'relative', marginBottom: '16px', cursor: 'pointer' }}>
+          <select value={behavior} onChange={(e) => setBehavior(e.target.value)} style={{ width: '100%', padding: '16px', fontSize: '16px', fontWeight: '500', appearance: 'none', backgroundColor: 'transparent', color: 'var(--color-text-main)', border: 'none', outline: 'none', cursor: 'pointer', zIndex: 2, position: 'relative' }}>
+            <option value="Sanftmütig">Sanftmütig</option>
+            <option value="Nervös">Nervös</option>
+            <option value="Aggressiv">Aggressiv</option>
+            <option value="Stecher">Stecher</option>
+          </select>
+          <ChevronDown size={20} color="var(--color-primary-green)" style={{ position: 'absolute', right: '16px', top: '16px', pointerEvents: 'none', zIndex: 1 }} />
         </div>
         
         <div className="card" onClick={() => setDroneCut(!droneCut)} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', cursor: 'pointer' }}>
