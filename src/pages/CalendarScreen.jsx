@@ -44,10 +44,72 @@ export default function CalendarScreen() {
   };
 
   const inputStyle = { width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-dark)', color: 'var(--color-text-main)' };
-  const labelStyle = { display: 'block', fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '8px' };
+  const labelStyle = { display: 'block', fontSize: '12px', color: 'var(--color-text-secondary)', margin: '0 0 8px 0' };
 
   // Group events by date
   events.sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  // Calendar Grid Logic
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  
+  const getDaysInMonth = (y, m) => new Date(y, m + 1, 0).getDate();
+  const getFirstDayOfMonth = (y, m) => {
+     let day = new Date(y, m, 1).getDay();
+     return day === 0 ? 6 : day - 1; // Mon=0, Sun=6
+  };
+
+  const renderCalendarGrid = () => {
+    const daysInMonth = getDaysInMonth(year, month);
+    const firstDay = getFirstDayOfMonth(year, month);
+    const days = [];
+    
+    for(let i=0; i < firstDay; i++) {
+       days.push(<div key={`empty-${i}`} style={{ padding: '8px' }}></div>);
+    }
+    
+    for(let i=1; i <= daysInMonth; i++) {
+       const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+       const hasEvent = events.some(e => e.date === dateStr);
+       const isToday = new Date().toISOString().split('T')[0] === dateStr;
+       
+       days.push(
+         <div key={i} style={{ 
+            padding: '12px 4px', textAlign: 'center', fontSize: '14px',
+            fontWeight: isToday ? 'bold' : 'normal',
+            backgroundColor: isToday ? 'var(--color-primary-green)' : 'var(--color-bg-card)',
+            color: isToday ? '#000' : 'var(--color-text-main)',
+            borderRadius: '8px', position: 'relative'
+         }}>
+           {i}
+           {hasEvent && (
+              <div style={{ position: 'absolute', bottom: '4px', left: '50%', transform: 'translateX(-50%)', width: '4px', height: '4px', borderRadius: '50%', backgroundColor: isToday ? '#000' : 'var(--color-primary-green)' }}></div>
+           )}
+         </div>
+       );
+    }
+    
+    return (
+       <div className="card" style={{ padding: '16px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+             <button onClick={() => setCurrentDate(new Date(year, month-1, 1))} style={{ background: 'none', border: 'none', color: 'var(--color-text-main)', cursor: 'pointer', fontSize: '18px', padding: '0 8px' }}>{'<'}</button>
+             <div style={{ fontWeight: 'bold', fontSize: '16px', textTransform: 'capitalize' }}>
+                {currentDate.toLocaleString('de-DE', { month: 'long', year: 'numeric' })}
+             </div>
+             <button onClick={() => setCurrentDate(new Date(year, month+1, 1))} style={{ background: 'none', border: 'none', color: 'var(--color-text-main)', cursor: 'pointer', fontSize: '18px', padding: '0 8px' }}>{'>'}</button>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', marginBottom: '8px' }}>
+             {['Mo','Di','Mi','Do','Fr','Sa','So'].map(d => (
+                <div key={d} style={{ textAlign: 'center', fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 'bold' }}>{d}</div>
+             ))}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px' }}>
+             {days}
+          </div>
+       </div>
+    );
+  };
 
   return (
     <div className="p-4" style={{ padding: '16px', paddingBottom: '90px' }}>
@@ -58,6 +120,8 @@ export default function CalendarScreen() {
           {showForm ? 'Abbrechen' : '+ Termin'}
         </button>
       </div>
+
+      {!showForm && renderCalendarGrid()}
 
       {showForm && (
         <form onSubmit={handleSave} className="card" style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>

@@ -9,9 +9,9 @@ export default function NewInspection() {
   
   const [queenSeen, setQueenSeen] = useState(true);
   const [broodStatus, setBroodStatus] = useState('Beides');
-  const [frames, setFrames] = useState(8);
   const [droneCut, setDroneCut] = useState(false);
   const [behavior, setBehavior] = useState('Sanftmütig');
+  const [notes, setNotes] = useState('');
 
   const broodOptions = ['Keine', 'Offen', 'Verdeckelt', 'Beides'];
 
@@ -22,12 +22,14 @@ export default function NewInspection() {
         broodStatus,
         frames,
         droneCut,
-        behavior
+        behavior,
+        notes
       });
       await updateHive(id, {
         frames: frames,
         strength: frames > 7 ? 'Stark' : frames < 4 ? 'Schwach' : 'Normal',
-        trend: 'Zuletzt geprüft'
+        trend: 'Zuletzt geprüft',
+        lastNotes: notes
       });
       navigate(-1);
     } catch (e) {
@@ -142,6 +144,18 @@ export default function NewInspection() {
           </div>
           <Scissors size={24} color="var(--color-text-secondary)" />
         </div>
+      </div>
+
+      {/* NOTIZEN */}
+      <div style={{ marginBottom: '32px' }}>
+        <div style={{ fontSize: '12px', fontWeight: 'bold', letterSpacing: '1px', color: 'var(--color-text-secondary)', marginBottom: '12px' }}>NOTIZEN</div>
+        <textarea 
+          value={notes} 
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Besonderheiten, Auffälligkeiten..."
+          className="card"
+          style={{ width: '100%', padding: '16px', minHeight: '100px', backgroundColor: 'transparent', color: 'var(--color-text-main)', border: 'none', outline: 'none', resize: 'vertical' }}
+        />
       </div>
 
       <button className="btn-primary" onClick={handleSave}>

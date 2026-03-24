@@ -201,9 +201,15 @@ export default function HiveDetail() {
                 
                 {isExpanded && (
                    <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--color-border)', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--color-text-secondary)' }}>Verhalten:</span> <span>{i.behavior || '-'}</span></div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--color-text-secondary)' }}>Behavior:</span> <span>{i.behavior || '-'}</span></div>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--color-text-secondary)' }}>Drohnenrahmen:</span> <span>{i.droneCut ? 'Geschnitten' : 'Nicht geschnitten'}</span></div>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--color-text-secondary)' }}>Königin:</span> <span>{i.queenSeen ? 'Gesehen' : 'Nicht gesehen'}</span></div>
+                      {i.notes && (
+                        <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed var(--color-border)' }}>
+                          <span style={{ color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>Notizen:</span>
+                          <span style={{ fontStyle: 'italic', lineHeight: '1.4', display: 'block' }}>{i.notes}</span>
+                        </div>
+                      )}
                    </div>
                 )}
               </div>
