@@ -9,6 +9,7 @@ export default function NewInspection() {
   
   const [queenSeen, setQueenSeen] = useState(true);
   const [broodStatus, setBroodStatus] = useState('Beides');
+  const [frames, setFrames] = useState(8);
   const [droneCut, setDroneCut] = useState(false);
   const [behavior, setBehavior] = useState('Sanftmütig');
   const [notes, setNotes] = useState('');
