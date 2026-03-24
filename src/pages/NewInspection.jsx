@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Calendar, Sun, Crown, Scissors, Save, ChevronDown } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { addInspection, updateHive } from '../services/db';
+import { addInspection, updateHive, getHiveById } from '../services/db';
 
 export default function NewInspection() {
   const navigate = useNavigate();
@@ -20,6 +20,12 @@ export default function NewInspection() {
 
   const handleSave = async () => {
     try {
+      const currentHive = await getHiveById(id);
+      let currentSupers = currentHive?.supers || 0;
+      
+      if (honeySuper === 'Aufgesetzt') currentSupers += 1;
+      if (honeySuper === 'Abgenommen') currentSupers = Math.max(0, currentSupers - 1);
+
       await addInspection(id, {
         queenSeen,
         broodStatus,
@@ -33,7 +39,8 @@ export default function NewInspection() {
         frames: frames,
         strength: frames > 7 ? 'Stark' : frames < 4 ? 'Schwach' : 'Normal',
         trend: 'Zuletzt geprüft',
-        lastNotes: notes
+        lastNotes: notes,
+        supers: currentSupers
       });
       navigate(-1);
     } catch (e) {
