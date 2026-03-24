@@ -13,8 +13,10 @@ export default function NewInspection() {
   const [droneCut, setDroneCut] = useState(false);
   const [behavior, setBehavior] = useState('Sanftmütig');
   const [notes, setNotes] = useState('');
+  const [honeySuper, setHoneySuper] = useState('Keine Änderung');
 
   const broodOptions = ['Keine', 'Offen', 'Verdeckelt', 'Beides'];
+  const honeySuperOptions = ['Keine Änderung', 'Aufgesetzt', 'Abgenommen'];
 
   const handleSave = async () => {
     try {
@@ -24,7 +26,8 @@ export default function NewInspection() {
         frames,
         droneCut,
         behavior,
-        notes
+        notes,
+        honeySuper
       });
       await updateHive(id, {
         frames: frames,
@@ -144,6 +147,25 @@ export default function NewInspection() {
             <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>Varroa-Reduktion durchgeführt</div>
           </div>
           <Scissors size={24} color="var(--color-text-secondary)" />
+        </div>
+      </div>
+
+      {/* HONIGRAUM */}
+      <div style={{ marginBottom: '32px' }}>
+        <div style={{ fontSize: '12px', fontWeight: 'bold', letterSpacing: '1px', color: 'var(--color-text-secondary)', marginBottom: '12px' }}>HONIGRAUM</div>
+        <div className="card" style={{ padding: '8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {honeySuperOptions.map(option => (
+            <div 
+              key={option}
+              onClick={() => setHoneySuper(option)}
+              style={{ padding: '12px', borderRadius: '8px', textAlign: 'center', fontWeight: '500', fontSize: '15px', cursor: 'pointer', transition: '0.2s',
+                backgroundColor: honeySuper === option ? '#1a4a1c' : 'transparent',
+                color: honeySuper === option ? 'var(--color-primary-green)' : 'var(--color-text-secondary)'
+              }}
+            >
+              {option}
+            </div>
+          ))}
         </div>
       </div>
 
