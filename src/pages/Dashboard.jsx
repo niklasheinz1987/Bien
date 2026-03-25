@@ -97,7 +97,7 @@ export default function Dashboard() {
 
               <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
                 <div style={{ width: '120px', height: '76px', backgroundColor: '#2a3b2c', borderRadius: '8px', overflow: 'hidden' }}>
-                  <img src="https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=240&h=150&fit=crop" alt="Bee" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+                  <img src={hive.imageUrl || "https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=240&h=150&fit=crop"} alt="Bee" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
                 </div>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', justifyContent: 'center' }}>
                   <div>
